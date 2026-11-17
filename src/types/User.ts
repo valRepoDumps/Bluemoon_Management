@@ -3,10 +3,12 @@ export enum UserRole {
   ADMIN = "ADMIN",
   STAFF = "STAFF",
   MANAGER = "MANAGER"
-}
+};
+
+import {UserID} from './Ids';
 
 export interface User {
-  id: number;
+  id: UserID;
   email: string;
   passwordHash: string;
   name: string;

@@ -12,9 +12,3 @@ export const ErrorCodes = {
 } as const;
 
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];
-
-// Main API Response structure containing ONLY code and data
-export interface ApiResponse<T = Record<string, any>> {
-  code: ErrorCode;
-  data: T;
-}

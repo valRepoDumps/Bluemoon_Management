@@ -1,4 +1,4 @@
-import {UUID} from '../common/UUID'
+import {UUID} from '../service/UUID'
 export interface ObjDB {
   id: UUID
 }

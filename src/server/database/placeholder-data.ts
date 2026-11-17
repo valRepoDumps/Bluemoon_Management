@@ -1,5 +1,5 @@
 import {UserDB, SessionDB, HouseholdDB, ResidentDB} from './DatabaseProp'
-import { generateUUID } from '../common/UUID';
+import { generateUUID } from '../service/UUID';
 // Complete mock data store matching the SDD database schema
 export const mockDatabase = {
   users: [

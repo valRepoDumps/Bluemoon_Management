@@ -1,10 +1,10 @@
 import {UserDB, SessionDB, HouseholdDB, ResidentDB} from './DatabaseProp'
-
+import { generateUUID } from '../common/UUID';
 // Complete mock data store matching the SDD database schema
 export const mockDatabase = {
   users: [
     {
-      id: 1,
+      id: generateUUID(),
       email: "nv.huong@bluemoon.com",
       passwordHash: "hashed_Bluemoon#2026",
       name: "Nguyễn Thị Hương",
@@ -14,7 +14,7 @@ export const mockDatabase = {
       deletedAt: null,
     },
     {
-      id: 2,
+      id: generateUUID(),
       email: "admin@bluemoon.com",
       passwordHash: "hashed_Bluemoon#2026",
       name: "Quản Trị Viên",
@@ -24,7 +24,7 @@ export const mockDatabase = {
       deletedAt: null,
     },
     {
-      id: 3,
+      id: generateUUID(),
       email: "manager@bluemoon.com",
       passwordHash: "hashed_Bluemoon#2026",
       name: "Trần Văn Quản Lý",
@@ -37,7 +37,7 @@ export const mockDatabase = {
 
   sessions: [
     {
-      id: 101,
+      id: generateUUID(),
       userId: 1,
       token: "token_1_1763300000",
       createdAt: "2026-11-16T08:00:00Z",
@@ -47,19 +47,19 @@ export const mockDatabase = {
 
   households: [
     {
-      id: 101,
+      id: generateUUID(),
       headId: 10,
       number: "1203",
       status: "Active",
     },
     {
-      id: 102,
+      id: generateUUID(),
       headId: 11,
       number: "1204",
       status: "Active",
     },
     {
-      id: 103,
+      id: generateUUID(),
       headId: 12,
       number: "1205",
       status: "Vacant",
@@ -68,21 +68,21 @@ export const mockDatabase = {
 
   residents: [
     {
-      id: 10,
+      id: generateUUID(),
       householdId: 101,
       phoneNumber: "0912345678",
       birthDate: "1980-01-15",
       relationship: "Chủ hộ",
     },
     {
-      id: 11,
+      id: generateUUID(),
       householdId: 101,
       phoneNumber: "0987654321",
       birthDate: "1985-06-20",
       relationship: "Vợ",
     },
     {
-      id: 12,
+      id: generateUUID(),
       householdId: 102,
       phoneNumber: "0901122334",
       birthDate: "1975-11-10",

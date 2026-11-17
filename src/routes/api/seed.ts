@@ -6,6 +6,8 @@ import { ErrorCodes } from '~/server/api/ErrorCode';
 const sql = postgres(process.env.DATABASE_URL!);
 
 // Transaction handle, so every seed step runs inside the same transaction
+//open page api/seed to seed database. 
+//rmb to run docker compose up -d to create docker instance. 
 type Tx = postgres.TransactionSql;
 
 async function seedUsers(sql: Tx) {
@@ -127,7 +129,6 @@ export async function GET() {
       { status: 200 },
     );
   } catch (error: unknown) {
-    console.error('Database seeding failed:', error);
 
     return Response.json(
       new ApiResponse(ErrorCodes.SYSTEM_OR_DATABASE_ERROR, {

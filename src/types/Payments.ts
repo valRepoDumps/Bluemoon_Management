@@ -1,7 +1,4 @@
-import { HouseHoldID } from "./Household";
-
-export type FeeID = number;
-export type DonationID = number;
+import { HouseHoldID, FeeID, DonationID } from "./Ids";
 
 export interface Donation {
     donation_id: DonationID;

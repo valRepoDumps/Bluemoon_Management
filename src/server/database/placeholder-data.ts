@@ -1,92 +1,109 @@
-import {UserDB, SessionDB, HouseholdDB, ResidentDB} from './DatabaseProp'
-import { generateUUID } from '../service/UUID';
-// Complete mock data store matching the SDD database schema
+import type { UserDB, SessionDB, HouseholdDB, ResidentDB } from './DatabaseProp';
+import { generateUUID } from '~/types/UUID';
+import { UserRole } from '~/types/User';
+import { HouseholdStatus } from '~/types/Household';
+
+// 1. Generate every id once, up front, so records can reference each other
+const ids = {
+  users: { huong: generateUUID(), admin: generateUUID(), manager: generateUUID() },
+  sessions: { huong: generateUUID() },
+  households: { h1203: generateUUID(), h1204: generateUUID(), h1205: generateUUID() },
+  residents: { r1: generateUUID(), r2: generateUUID(), r3: generateUUID() },
+};
+
+// 2. Annotate the type instead of using `as X[]`, so the compiler checks the data
+export const mockUsers: UserDB[] = [
+  {
+    id: ids.users.huong,
+    email: "nv.huong@bluemoon.com",
+    passwordHash: "hashed_Bluemoon#2026",
+    name: "Nguyễn Thị Hương",
+    role: UserRole.STAFF,
+    createdAt: "2026-10-01T00:00:00Z",
+    updatedAt: "2026-10-01T00:00:00Z",
+    deletedAt: null,
+  },
+  {
+    id: ids.users.admin,
+    email: "admin@bluemoon.com",
+    passwordHash: "hashed_Bluemoon#2026",
+    name: "Quản Trị Viên",
+    role: UserRole.ADMIN,
+    createdAt: "2026-10-01T00:00:00Z",
+    updatedAt: "2026-10-01T00:00:00Z",
+    deletedAt: null,
+  },
+  {
+    id: ids.users.manager,
+    email: "manager@bluemoon.com",
+    passwordHash: "hashed_Bluemoon#2026",
+    name: "Trần Văn Quản Lý",
+    role: UserRole.MANAGER,
+    createdAt: "2026-10-01T00:00:00Z",
+    updatedAt: "2026-10-01T00:00:00Z",
+    deletedAt: null,
+  },
+];
+
+export const mockSessions: SessionDB[] = [
+  {
+    id: ids.sessions.huong,
+    userId: ids.users.huong,                 // -> mockUsers[0]
+    token: "token_1_1763300000",
+    createdAt: "2026-11-16T08:00:00Z",
+    expiresAt: "2026-11-17T08:00:00Z",
+  },
+];
+
+export const mockHouseholds: HouseholdDB[] = [
+  {
+    id: ids.households.h1203,
+    headId: ids.residents.r1,                // -> resident in this household
+    number: 1203,                          // was a number, must be a string
+    status: HouseholdStatus.ACTIVE,
+  },
+  {
+    id: ids.households.h1204,
+    headId: ids.residents.r3,                // -> resident in this household
+    number: 1204,
+    status: HouseholdStatus.ACTIVE,
+  },
+  {
+    id: ids.households.h1205,
+    headId: null,                            // vacant, so no head
+    number: 1205,
+    status: HouseholdStatus.VACANT,
+  },
+];
+
+export const mockResidents: ResidentDB[] = [
+  {
+    id: ids.residents.r1,
+    householdId: ids.households.h1203,
+    phoneNumber: "0912345678",
+    birthDate: "1980-01-15",
+    relationship: "Chủ hộ",
+  },
+  {
+    id: ids.residents.r2,
+    householdId: ids.households.h1203,
+    phoneNumber: "0987654321",
+    birthDate: "1985-06-20",
+    relationship: "Vợ",
+  },
+  {
+    id: ids.residents.r3,
+    householdId: ids.households.h1204,
+    phoneNumber: "0901122334",
+    birthDate: "1975-11-10",
+    relationship: "Chủ hộ",
+  },
+];
+
+// Keeps seed.ts and the tests working unchanged
 export const mockDatabase = {
-  users: [
-    {
-      id: generateUUID(),
-      email: "nv.huong@bluemoon.com",
-      passwordHash: "hashed_Bluemoon#2026",
-      name: "Nguyễn Thị Hương",
-      role: "STAFF",
-      createdAt: "2026-10-01T00:00:00Z",
-      updatedAt: "2026-10-01T00:00:00Z",
-      deletedAt: null,
-    },
-    {
-      id: generateUUID(),
-      email: "admin@bluemoon.com",
-      passwordHash: "hashed_Bluemoon#2026",
-      name: "Quản Trị Viên",
-      role: "ADMIN",
-      createdAt: "2026-10-01T00:00:00Z",
-      updatedAt: "2026-10-01T00:00:00Z",
-      deletedAt: null,
-    },
-    {
-      id: generateUUID(),
-      email: "manager@bluemoon.com",
-      passwordHash: "hashed_Bluemoon#2026",
-      name: "Trần Văn Quản Lý",
-      role: "MANAGER",
-      createdAt: "2026-10-01T00:00:00Z",
-      updatedAt: "2026-10-01T00:00:00Z",
-      deletedAt: null,
-    },
-  ] as UserDB[],
-
-  sessions: [
-    {
-      id: generateUUID(),
-      userId: 1,
-      token: "token_1_1763300000",
-      createdAt: "2026-11-16T08:00:00Z",
-      expiresAt: "2026-11-17T08:00:00Z",
-    },
-  ] as SessionDB[],
-
-  households: [
-    {
-      id: generateUUID(),
-      headId: 10,
-      number: "1203",
-      status: "Active",
-    },
-    {
-      id: generateUUID(),
-      headId: 11,
-      number: "1204",
-      status: "Active",
-    },
-    {
-      id: generateUUID(),
-      headId: 12,
-      number: "1205",
-      status: "Vacant",
-    },
-  ] as HouseholdDB[],
-
-  residents: [
-    {
-      id: generateUUID(),
-      householdId: 101,
-      phoneNumber: "0912345678",
-      birthDate: "1980-01-15",
-      relationship: "Chủ hộ",
-    },
-    {
-      id: generateUUID(),
-      householdId: 101,
-      phoneNumber: "0987654321",
-      birthDate: "1985-06-20",
-      relationship: "Vợ",
-    },
-    {
-      id: generateUUID(),
-      householdId: 102,
-      phoneNumber: "0901122334",
-      birthDate: "1975-11-10",
-      relationship: "Chủ hộ",
-    },
-  ] as ResidentDB[],
+  users: mockUsers,
+  sessions: mockSessions,
+  households: mockHouseholds,
+  residents: mockResidents,
 };

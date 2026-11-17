@@ -1,11 +1,14 @@
-export type HouseholdStatus = "Active" | "Vacant";
 
-export type HouseHoldID = number;
-export type ResidentID = number;
+export enum HouseholdStatus {
+  ACTIVE= "ACTIVE",
+  VACANT = "VACANT"
+};
+
+import { HouseHoldID, ResidentID } from "./Ids";
 
 export interface Household {
   household_id: HouseHoldID;
-  headId: ResidentID; // Foreign key linking to Resident.id (head of household)
+  headId: ResidentID | null; // Foreign key linking to Resident.id (head of household)
   number: string; // Apartment / household number
   status: HouseholdStatus;
 }

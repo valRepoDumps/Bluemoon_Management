@@ -1,32 +1,15 @@
-# SolidStart
+### DATABASE
+ Tạo file .env ở trong folder "Bluemoon_Management", với dữ liệu sau:
+    `
+        DATABASE_USER="postgres"
+        DATABASE_PASSWORD="postgres"
+        DATABASE_NAME="postgres"
+        DATABASE_HOST="localhost"
+        DATABASE_PORT=54322
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+        #Standard PostgreSQL connection URL interpolation
+        DATABASE_URL=`postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`
+    `
 
-## Creating a project
-
-```bash
-# create a new project in the current directory
-npm init solid@latest
-
-# create a new project in my-app
-npm init solid@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-Solid apps are built with Nitro _presets_, which optimise your project for deployment to different environments.
-
-By default, `npm run build` will generate a Node app under `.output` that you can run with `npm start`. To use a different preset, set it on the `nitro()` plugin in your `vite.config.ts`.
-
-## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
+ Chạy `docker compose up -d` để init database trên docker desktop. 
+ Truy cập vào `http://localhost:3000/api/seed` để seed database. 

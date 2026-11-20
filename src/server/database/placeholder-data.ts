@@ -2,7 +2,7 @@ import type { UserDB, SessionDB, HouseholdDB, ResidentDB } from './DatabaseProp'
 import { generateUUID } from '~/types/UUID';
 import { UserRole } from '~/types/User';
 import { HouseholdStatus } from '~/types/Household';
-
+import { hashPasswordSync, verifyPasswordSync} from '../service/password-hash';
 // 1. Generate every id once, up front, so records can reference each other
 const ids = {
   users: { huong: generateUUID(), admin: generateUUID(), manager: generateUUID() },
@@ -16,7 +16,7 @@ export const mockUsers: UserDB[] = [
   {
     id: ids.users.huong,
     email: "nv.huong@bluemoon.com",
-    passwordHash: "hashed_Bluemoon#2026",
+    passwordHash: hashPasswordSync("huong2000"),
     name: "Nguyễn Thị Hương",
     role: UserRole.STAFF,
     createdAt: "2026-10-01T00:00:00Z",
@@ -26,7 +26,7 @@ export const mockUsers: UserDB[] = [
   {
     id: ids.users.admin,
     email: "admin@bluemoon.com",
-    passwordHash: "hashed_Bluemoon#2026",
+    passwordHash: hashPasswordSync("bluemoon-min"),
     name: "Quản Trị Viên",
     role: UserRole.ADMIN,
     createdAt: "2026-10-01T00:00:00Z",
@@ -36,7 +36,7 @@ export const mockUsers: UserDB[] = [
   {
     id: ids.users.manager,
     email: "manager@bluemoon.com",
-    passwordHash: "hashed_Bluemoon#2026",
+    passwordHash: hashPasswordSync("bluemoon-man"),
     name: "Trần Văn Quản Lý",
     role: UserRole.MANAGER,
     createdAt: "2026-10-01T00:00:00Z",

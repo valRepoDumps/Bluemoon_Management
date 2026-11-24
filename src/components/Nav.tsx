@@ -36,6 +36,9 @@ export default function Nav() {
             <li class={`border-b-2 ${active("/change-password")} mx-1.5 sm:mx-6`}>
               <A href="/change-password">Đổi mật khẩu</A>
             </li>
+            <li class={`border-b-2 ${active("/dashboard/households")} mx-1.5 sm:mx-6`}>
+              <A href="/dashboard/households">Quản lý hộ</A>
+            </li>
           </Show>
         </ul>
 

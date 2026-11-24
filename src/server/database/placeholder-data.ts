@@ -80,6 +80,7 @@ export const mockResidents: ResidentDB[] = [
   {
     id: ids.residents.r1,
     householdId: ids.households.h1203,
+    name: "Nguyễn Văn An",
     phoneNumber: "0912345678",
     birthDate: "1980-01-15",
     relationship: "Chủ hộ",
@@ -87,6 +88,7 @@ export const mockResidents: ResidentDB[] = [
   {
     id: ids.residents.r2,
     householdId: ids.households.h1203,
+    name: "Nguyễn Thị Lan",
     phoneNumber: "0987654321",
     birthDate: "1985-06-20",
     relationship: "Vợ",
@@ -94,6 +96,7 @@ export const mockResidents: ResidentDB[] = [
   {
     id: ids.residents.r3,
     householdId: ids.households.h1204,
+    name: "Trần Thị Bình",
     phoneNumber: "0901122334",
     birthDate: "1975-11-10",
     relationship: "Chủ hộ",

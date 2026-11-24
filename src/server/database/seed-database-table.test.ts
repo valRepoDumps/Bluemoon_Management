@@ -32,7 +32,7 @@ const households: HouseholdDB[] = [
   { id: householdId, headId: null, number: 1, status: HouseholdStatus.ACTIVE},
 ];
 const residents: ResidentDB[] = [
-  { id: generateUUID(), householdId, phoneNumber: null, birthDate: '1990-01-01', relationship: 'Chủ hộ' },
+  { id: generateUUID(), householdId, name: 'Resident A', phoneNumber: null, birthDate: '1990-01-01', relationship: 'Chủ hộ' },
 ];
 
 async function seedAll(db: postgres.Sql | postgres.TransactionSql) {
@@ -85,6 +85,11 @@ describe('seed tables', () => {
   it('allows a null phone number', async () => {
     const [row] = await sql`SELECT phone_number FROM residents`;
     expect(row.phone_number).toBeNull();
+  });
+
+  it('stores the resident name', async () => {
+    const [row] = await sql`SELECT name FROM residents`;
+    expect(row.name).toBe('Resident A');
   });
 
   it('enforces foreign keys', async () => {

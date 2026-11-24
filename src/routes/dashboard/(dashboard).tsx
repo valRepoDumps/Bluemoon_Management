@@ -104,7 +104,7 @@ export default function DashboardPage() {
           {/* SECTION 1: APARTMENT / HOUSEHOLD MANAGEMENT (Expandable Rows) */}
           <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center justify-between">
-              <span>Danh Sách Hộ Gia Đình & Cư Dân (Click để mở rộng)</span>
+              <span>Danh Sách Hộ Gia Đình & Cư Dân (dữ liệu minh họa)</span>
               <span class="text-xs font-normal text-gray-500">Kiểm tra quyền: {currentUser().role}</span>
             </h2>
 

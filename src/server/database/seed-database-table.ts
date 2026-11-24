@@ -88,17 +88,21 @@ export async function seedResidents(sql: Tx, residents: ResidentDB[]) {
     CREATE TABLE IF NOT EXISTS residents (
       id UUID PRIMARY KEY,
       household_id UUID NOT NULL REFERENCES households(id),
+      name VARCHAR(255),
       phone_number VARCHAR(20),
       birth_date DATE NOT NULL,
       relationship VARCHAR(50) NOT NULL
     );
   `;
 
+  // Migrate databases that were created before residents had a name column.
+  await sql`ALTER TABLE residents ADD COLUMN IF NOT EXISTS name VARCHAR(255);`;
+
   return Promise.all(
     residents.map(
       (resident) => sql`
-        INSERT INTO residents (id, household_id, phone_number, birth_date, relationship)
-        VALUES (${resident.id}, ${resident.householdId}, ${resident.phoneNumber},
+        INSERT INTO residents (id, household_id, name, phone_number, birth_date, relationship)
+        VALUES (${resident.id}, ${resident.householdId}, ${resident.name}, ${resident.phoneNumber},
                 ${resident.birthDate}, ${resident.relationship})
         ON CONFLICT (id) DO NOTHING;
       `,

@@ -1,16 +1,15 @@
-import { ErrorCode } from  './ErrorCode';
+import { ErrorCode } from './ErrorCode';
 
-// Main API Response structure containing ONLY code and data
 export class ApiResponse<T> {
   constructor(
     public code: ErrorCode,
     public data: T
   ) {}
 
-  toJSON(): string {
-    return JSON.stringify({
+  toJSON(): { code: ErrorCode; data: T } {
+    return {
       code: this.code,
       data: this.data,
-    });
+    };
   }
 }

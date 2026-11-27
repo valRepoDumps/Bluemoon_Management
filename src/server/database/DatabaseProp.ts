@@ -32,6 +32,7 @@ export interface HouseholdDB extends ObjDB{
 
 export interface ResidentDB extends ObjDB{
   householdId: HouseHoldID;
+  name: string;
   phoneNumber: string | null;
   birthDate: string;
   relationship: string;

@@ -91,7 +91,14 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <Show when={user()}>
+    <Show
+      when={user()}
+      fallback={
+        <div class="min-h-[calc(100vh-3.5rem)] bg-gray-50 flex items-center justify-center text-sm text-gray-500">
+          Đang kiểm tra phiên đăng nhập...
+        </div>
+      }
+    >
       {(currentUser) => (
         <main class="min-h-[calc(100vh-3.5rem)] bg-gray-50 flex items-center justify-center px-4 py-12">
           <div class="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-100 p-8">

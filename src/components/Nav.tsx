@@ -1,5 +1,5 @@
 import { A, createAsync, useLocation, useNavigate } from "@solidjs/router";
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, Suspense } from "solid-js";
 import { getCurrentUserQuery, logoutRequest } from "~/lib/auth";
 
 export default function Nav() {
@@ -29,44 +29,48 @@ export default function Nav() {
           <li class={`border-b-2 ${active("/about")} mx-1.5 sm:mx-6`}>
             <A href="/about">About</A>
           </li>
-          <Show when={user()}>
-            <li class={`border-b-2 ${active("/dashboard")} mx-1.5 sm:mx-6`}>
-              <A href="/dashboard">Dashboard</A>
-            </li>
-            <li class={`border-b-2 ${active("/change-password")} mx-1.5 sm:mx-6`}>
-              <A href="/change-password">Đổi mật khẩu</A>
-            </li>
-          </Show>
+          <Suspense>
+            <Show when={user()}>
+              <li class={`border-b-2 ${active("/dashboard")} mx-1.5 sm:mx-6`}>
+                <A href="/dashboard">Dashboard</A>
+              </li>
+              <li class={`border-b-2 ${active("/change-password")} mx-1.5 sm:mx-6`}>
+                <A href="/change-password">Đổi mật khẩu</A>
+              </li>
+            </Show>
+          </Suspense>
         </ul>
 
         <div class="flex items-center gap-3 text-sm">
-          <Show
-            when={user()}
-            fallback={
-              <A
-                href="/login"
-                class={`border-b-2 ${active("/login")} mx-1.5 sm:mx-4`}
-              >
-                Đăng nhập
-              </A>
-            }
-          >
-            {(currentUser) => (
-              <>
-                <span class="hidden sm:inline text-xs text-sky-200">
-                  {currentUser().name}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  disabled={loggingOut()}
-                  class="rounded bg-sky-700 px-3 py-1 text-xs font-medium text-white hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-300 disabled:opacity-60 transition"
+          <Suspense>
+            <Show
+              when={user()}
+              fallback={
+                <A
+                  href="/login"
+                  class={`border-b-2 ${active("/login")} mx-1.5 sm:mx-4`}
                 >
-                  {loggingOut() ? "Đang xuất..." : "Đăng xuất"}
-                </button>
-              </>
-            )}
-          </Show>
+                  Đăng nhập
+                </A>
+              }
+            >
+              {(currentUser) => (
+                <>
+                  <span class="hidden sm:inline text-xs text-sky-200">
+                    {currentUser().name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loggingOut()}
+                    class="rounded bg-sky-700 px-3 py-1 text-xs font-medium text-white hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-300 disabled:opacity-60 transition"
+                  >
+                    {loggingOut() ? "Đang xuất..." : "Đăng xuất"}
+                  </button>
+                </>
+              )}
+            </Show>
+          </Suspense>
         </div>
       </div>
     </nav>

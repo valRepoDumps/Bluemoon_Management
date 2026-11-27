@@ -59,7 +59,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <Show when={user()}>
+    <Show
+      when={user()}
+      fallback={
+        <div class="min-h-screen bg-gray-50 flex items-center justify-center text-sm text-gray-500">
+          Đang kiểm tra phiên đăng nhập...
+        </div>
+      }
+    >
       {(currentUser) => (
         <div class="min-h-screen bg-gray-50 p-6 space-y-8">
           {/* HEADER SECTION */}

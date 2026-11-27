@@ -32,78 +32,27 @@ export async function GET({ request }: APIEvent) {
       );
     }
 
-    // Backward-compatible migration for databases created before residents.name existed.
-    await sql`ALTER TABLE residents ADD COLUMN IF NOT EXISTS name VARCHAR(255);`;
-    // Backfill names for the three sample residents already stored by the original seed.
-    await sql`
-      UPDATE residents
-      SET name = CASE phone_number
-        WHEN '0912345678' THEN 'Nguyễn Văn An'
-        WHEN '0987654321' THEN 'Nguyễn Thị Lan'
-        WHEN '0901122334' THEN 'Trần Thị Bình'
-        ELSE name
-      END
-      WHERE name IS NULL
-        AND phone_number IN ('0912345678', '0987654321', '0901122334')
-    `;
-
-    const rows = await sql<Array<{
-      household_id: string;
-      number: string;
-      status: string;
-      head_id: string | null;
-      resident_id: string | null;
-      resident_name: string | null;
-      phone_number: string | null;
-      birth_date: string | null;
-      relationship: string | null;
-    }>>`
-      SELECT
-        h.id AS household_id,
-        h.number,
-        h.status,
-        h.head_id,
-        r.id AS resident_id,
-        r.name AS resident_name,
-        r.phone_number,
-        TO_CHAR(r.birth_date, 'YYYY-MM-DD') AS birth_date,
-        r.relationship
-      FROM households h
-      LEFT JOIN residents r ON r.household_id = h.id
-      ORDER BY h.number, r.birth_date, r.id
-    `;
-
-    const byId = new Map<string, HouseholdView>();
-    for (const row of rows) {
-      let household = byId.get(row.household_id);
-      if (!household) {
-        household = {
-          id: row.household_id,
-          number: String(row.number),
-          status: row.status,
-          head: null,
-          residents: [],
-        };
-        byId.set(row.household_id, household);
+    // Use service function for fetching households; schema migrations are handled in seed.
+    const { getHouseholdsForRequest } = await import("~/server/service/households");
+    try {
+      const households = await getHouseholdsForRequest(sql, request);
+      return Response.json(
+        new ApiResponse(ErrorCodes.SUCCESS, { households }),
+        { status: 200, headers: { "Cache-Control": "no-store" } },
+      );
+    } catch (e) {
+      if (e instanceof Error && e.message === "Unauthenticated") {
+        return Response.json(
+          new ApiResponse(ErrorCodes.UNAUTHENTICATED, { message: "Vui lòng đăng nhập để xem danh sách hộ gia đình." }),
+          { status: 401, headers: { "Cache-Control": "no-store" } },
+        );
       }
-
-      if (row.resident_id) {
-        const resident: ResidentView = {
-          id: row.resident_id,
-          name: row.resident_name?.trim() || "Chưa cập nhật tên",
-          phoneNumber: row.phone_number,
-          birthDate: row.birth_date ?? "",
-          relationship: row.relationship ?? "",
-        };
-        household.residents.push(resident);
-        if (row.head_id === row.resident_id) household.head = resident;
-      }
+      console.error("Household list error:", e);
+      return Response.json(
+        new ApiResponse(ErrorCodes.SYSTEM_OR_DATABASE_ERROR, { message: "Không thể tải danh sách hộ gia đình." }),
+        { status: 500, headers: { "Cache-Control": "no-store" } },
+      );
     }
-
-    return Response.json(
-      new ApiResponse(ErrorCodes.SUCCESS, { households: Array.from(byId.values()) }),
-      { status: 200, headers: { "Cache-Control": "no-store" } },
-    );
   } catch (error) {
     console.error("Household list error:", error instanceof Error ? error.message : "Unknown error");
     return Response.json(
@@ -179,7 +128,7 @@ export async function POST({ request }: APIEvent) {
       );
     }
 
-    await sql`ALTER TABLE residents ADD COLUMN IF NOT EXISTS name VARCHAR(255);`;
+
     const existing = await sql<Array<{ id: string }>>`
       SELECT id FROM households WHERE number = ${number} LIMIT 1
     `;

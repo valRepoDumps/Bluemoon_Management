@@ -1,29 +1,12 @@
-import { A, createAsync } from "@solidjs/router";
-import { createSignal, For, onMount, Show } from "solid-js";
+import { A, createAsync, revalidate } from "@solidjs/router";
+import { createSignal, For, Show } from "solid-js";
 import { requireUserQuery } from "~/lib/auth";
-
-type ResidentView = {
-  id: string;
-  name: string;
-  phoneNumber: string | null;
-  birthDate: string;
-  relationship: string;
-};
-
-type HouseholdView = {
-  id: string;
-  number: string;
-  status: string;
-  head: ResidentView | null;
-  residents: ResidentView[];
-};
+import { getHouseholdsQuery } from "~/lib/households";
 
 type ApiResult<T> = { code: number; data: T & { message?: string } };
 
 export default function HouseholdManagementPage() {
   const user = createAsync(() => requireUserQuery());
-  const [households, setHouseholds] = createSignal<HouseholdView[]>([]);
-  const [loading, setLoading] = createSignal(true);
   const [creating, setCreating] = createSignal(false);
   const [showForm, setShowForm] = createSignal(false);
   const [expandedId, setExpandedId] = createSignal<string | null>(null);
@@ -34,28 +17,17 @@ export default function HouseholdManagementPage() {
   const [headPhone, setHeadPhone] = createSignal("");
   const [headBirthDate, setHeadBirthDate] = createSignal("");
 
-  const loadHouseholds = async () => {
-    setLoading(true);
+  // Server function fetching households
+  const households = createAsync(() => getHouseholdsQuery());
+
+  const refreshHouseholds = async () => {
     setError("");
     try {
-      const response = await fetch("/api/households", {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store",
-      });
-      const body = (await response.json()) as ApiResult<{ households?: HouseholdView[] }>;
-      if (!response.ok || body.code !== 1000) {
-        throw new Error(body.data?.message || "Không thể tải danh sách hộ gia đình.");
-      }
-      setHouseholds(body.data.households ?? []);
+      await revalidate(["households"]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu.");
-    } finally {
-      setLoading(false);
+      setError(err instanceof Error ? err.message : "Lỗi làm mới danh sách.");
     }
   };
-
-  onMount(() => { void loadHouseholds(); });
 
   const createHousehold = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -85,7 +57,7 @@ export default function HouseholdManagementPage() {
       setHeadPhone("");
       setHeadBirthDate("");
       setShowForm(false);
-      await loadHouseholds();
+      await refreshHouseholds();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi thêm hộ gia đình.");
     } finally {
@@ -118,14 +90,12 @@ export default function HouseholdManagementPage() {
                 {showForm() ? "Đóng biểu mẫu" : "+ Thêm hộ gia đình"}
               </button>
             </div>
-
             <Show when={error()}>
               <div role="alert" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error()}</div>
             </Show>
             <Show when={notice()}>
               <div role="status" class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice()}</div>
             </Show>
-
             <Show when={showForm()}>
               <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 class="text-lg font-semibold text-slate-900">Thông tin hộ gia đình mới</h2>
@@ -133,19 +103,19 @@ export default function HouseholdManagementPage() {
                 <form onSubmit={createHousehold} class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label class="text-sm font-medium text-slate-700">
                     Số căn hộ <span class="text-red-600">*</span>
-                    <input required maxLength={50} value={apartmentNumber()} onInput={(event) => setApartmentNumber(event.currentTarget.value)} placeholder="Ví dụ: 1206" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
+                    <input required maxLength={50} value={apartmentNumber()} onInput={(e) => setApartmentNumber(e.currentTarget.value)} placeholder="Ví dụ: 1206" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
                   </label>
                   <label class="text-sm font-medium text-slate-700">
                     Họ tên chủ hộ <span class="text-red-600">*</span>
-                    <input required maxLength={255} value={headName()} onInput={(event) => setHeadName(event.currentTarget.value)} placeholder="Nhập họ tên chủ hộ" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
+                    <input required maxLength={255} value={headName()} onInput={(e) => setHeadName(e.currentTarget.value)} placeholder="Nhập họ tên chủ hộ" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
                   </label>
                   <label class="text-sm font-medium text-slate-700">
                     Số điện thoại
-                    <input type="tel" maxLength={20} value={headPhone()} onInput={(event) => setHeadPhone(event.currentTarget.value)} placeholder="Ví dụ: 0912345678" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
+                    <input type="tel" maxLength={20} value={headPhone()} onInput={(e) => setHeadPhone(e.currentTarget.value)} placeholder="Ví dụ: 0912345678" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
                   </label>
                   <label class="text-sm font-medium text-slate-700">
                     Ngày sinh chủ hộ <span class="text-red-600">*</span>
-                    <input type="date" required max={new Date().toISOString().slice(0, 10)} value={headBirthDate()} onInput={(event) => setHeadBirthDate(event.currentTarget.value)} class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
+                    <input type="date" required max={new Date().toISOString().slice(0, 10)} value={headBirthDate()} onInput={(e) => setHeadBirthDate(e.currentTarget.value)} class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
                   </label>
                   <div class="flex flex-wrap items-center gap-3 sm:col-span-2">
                     <button type="submit" disabled={creating()} class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
@@ -156,17 +126,16 @@ export default function HouseholdManagementPage() {
                 </form>
               </section>
             </Show>
-
             <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
                 <div>
                   <h2 class="font-semibold text-slate-900">Danh sách hộ gia đình</h2>
-                  <p class="mt-1 text-xs text-slate-500">{households().length} hộ trong cơ sở dữ liệu</p>
+                  <p class="mt-1 text-xs text-slate-500">{(households?.length ?? 0)} hộ trong cơ sở dữ liệu</p>
                 </div>
-                <button type="button" onClick={() => void loadHouseholds()} class="text-sm font-medium text-indigo-600 hover:underline">Làm mới</button>
+                <button type="button" onClick={refreshHouseholds} class="text-sm font-medium text-indigo-600 hover:underline">Làm mới</button>
               </div>
-              <Show when={!loading()} fallback={<p class="px-5 py-8 text-center text-sm text-slate-500">Đang tải dữ liệu...</p>}>
-                <Show when={households().length > 0} fallback={<p class="px-5 py-10 text-center text-sm text-slate-500">Chưa có hộ gia đình nào. Hãy chọn “Thêm hộ gia đình” để tạo hộ đầu tiên.</p>}>
+              <Show when={!households.loading && households.error == null} fallback={<p class="px-5 py-8 text-center text-sm text-slate-500">Đang tải dữ liệu...</p>}>
+                <Show when={households()?.length > 0} fallback={<p class="px-5 py-10 text-center text-sm text-slate-500">Chưa có hộ gia đình nào. Hãy chọn “Thêm hộ gia đình” để tạo hộ đầu tiên.</p>}>
                   <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-200 text-sm">
                       <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
@@ -180,7 +149,7 @@ export default function HouseholdManagementPage() {
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-slate-100">
-                        <For each={households()}>
+                        <For each={households() ?? []}>
                           {(household) => (
                             <>
                               <tr class="cursor-pointer hover:bg-slate-50" onClick={() => setExpandedId(expandedId() === household.id ? null : household.id)}>
